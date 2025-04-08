@@ -5,6 +5,8 @@ const MyErrors = error{TokenNotFound};
 const TokenType = enum {
     LEFT_PAREN,
     RIGHT_PAREN,
+    LEFT_BRACE,
+    RIGHT_BRACE,
     EOF,
 };
 
@@ -27,6 +29,18 @@ const LPARENToken = Token{
 const RPARENToken = Token{
     .tokenType = .RIGHT_PAREN,
     .lexeme = ")",
+    .literal = null,
+};
+
+const LBRACEToken = Token{
+    .tokenType = .LEFT_BRACE,
+    .lexeme = "{",
+    .literal = null,
+};
+
+const RBRACEToken = Token{
+    .tokenType = .RIGHT_BRACE,
+    .lexeme = "}",
     .literal = null,
 };
 
@@ -75,6 +89,12 @@ fn match(token: u8) MyErrors!Token {
         },
         ')' => {
             return RPARENToken;
+        },
+        '{' => {
+            return LBRACEToken;
+        },
+        '}' => {
+            return RBRACEToken;
         },
         0 => {
             return EOFToken;
