@@ -31,9 +31,6 @@ const RPARENToken = Token{
 };
 
 pub fn main() !void {
-    // You can use print statements as follows for debugging, they'll be visible when running tests.
-    std.debug.print("Logs from your program will appear here!\n", .{});
-
     const args = try std.process.argsAlloc(std.heap.page_allocator);
     defer std.process.argsFree(std.heap.page_allocator, args);
 
@@ -58,15 +55,15 @@ pub fn main() !void {
         for (file_contents) |i| {
             try scanner(i);
         }
-    } else {
-        try std.io.getStdOut().writer().print("EOF  null\n", .{}); // Placeholder, remove this line when implementing the scanner
     }
+    try std.io.getStdOut().writer().print("EOF  null\n", .{}); // Placeholder, remove this line when implementing the scanner
 }
 
 fn scanner(token: u8) !void {
     if (token == '\n') {
         return;
     }
+
     const t = try match(token);
     try std.io.getStdOut().writer().print("{s} {s} {any}\n", .{ @tagName(t.tokenType), t.lexeme, t.literal });
 }
