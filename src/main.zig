@@ -96,19 +96,24 @@ pub fn main() !void {
 
     // Uncomment this block to pass the first stage
     if (file_contents.len > 0) {
-        for (file_contents) |i| {
-            try scanner(i);
+        for (file_contents, 0..) |token, line| {
+            try scanner(line, token);
         }
     }
     try std.io.getStdOut().writer().print("EOF  null\n", .{}); // Placeholder, remove this line when implementing the scanner
 }
 
-fn scanner(token: u8) !void {
+fn scanner(line: usize, token: u8) !void {
     if (token == '\n') {
         return;
     }
 
-    const t = try match(token);
+    const t = match(token) catch {
+        try std.io.getStdOut().writer().print("[line {}] Error: Unexpected character: {c}\n", .{ line, token });
+
+        return;
+    };
+
     try std.io.getStdOut().writer().print("{s} {s} {any}\n", .{ @tagName(t.tokenType), t.lexeme, t.literal });
 }
 
