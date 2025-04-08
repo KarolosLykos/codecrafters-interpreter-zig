@@ -107,6 +107,7 @@ pub fn main() !void {
     }
     try std.io.getStdOut().writer().print("EOF  null\n", .{}); // Placeholder, remove this line when implementing the scanner
 
+    std.debug.print("exit_code: {}\n", .{exit_code});
     std.process.exit(exit_code);
 }
 
@@ -116,7 +117,7 @@ fn scanner(token: u8) !void {
     }
 
     const t = match(token) catch {
-        return;
+        return MyErrors.TokenNotFound;
     };
 
     try std.io.getStdOut().writer().print("{s} {s} {any}\n", .{ @tagName(t.tokenType), t.lexeme, t.literal });
