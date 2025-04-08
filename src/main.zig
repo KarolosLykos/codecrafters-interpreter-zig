@@ -95,26 +95,27 @@ pub fn main() !void {
     defer std.heap.page_allocator.free(file_contents);
 
     var exit_code: u8 = 0;
+    var line: u8 = 1;
     // Uncomment this block to pass the first stage
     if (file_contents.len > 0) {
-        for (file_contents, 1..) |token, line| {
+        for (file_contents) |token| {
+            if (token == '\n') {
+                line += 1;
+                continue;
+            }
             scanner(token) catch {
-                try std.io.getStdOut().writer().print("[line {}] Error: Unexpected character: {c}\n", .{ line, token });
+                try std.io.getStdErr().writer().print("[line {d}] Error: Unexpected character: {c}\n", .{ line, token });
 
                 exit_code = 65;
             };
         }
     }
-    try std.io.getStdOut().writer().print("EOF  null\n", .{}); // Placeholder, remove this line when implementing the scanner
+    try std.io.getStdOut().writer().print("EOF  null\n", .{});
 
     std.process.exit(exit_code);
 }
 
 fn scanner(token: u8) !void {
-    if (token == '\n') {
-        return;
-    }
-
     const t = match(token) catch {
         return MyErrors.TokenNotFound;
     };
