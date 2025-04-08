@@ -2,13 +2,7 @@ const std = @import("std");
 
 const print = std.debug.print;
 const MyErrors = error{TokenNotFound};
-const TokenType = enum {
-    LEFT_PAREN,
-    RIGHT_PAREN,
-    LEFT_BRACE,
-    RIGHT_BRACE,
-    EOF,
-};
+const TokenType = enum { LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, COMMA, DOT, MINUS, PLUS, MULTIPLE, EOF };
 
 const Token = struct {
     tokenType: TokenType,
@@ -41,6 +35,36 @@ const LBRACEToken = Token{
 const RBRACEToken = Token{
     .tokenType = .RIGHT_BRACE,
     .lexeme = "}",
+    .literal = null,
+};
+
+const COMMAToken = Token{
+    .tokenType = .COMMA,
+    .lexeme = ",",
+    .literal = null,
+};
+
+const DOTToken = Token{
+    .tokenType = .DOT,
+    .lexeme = ".",
+    .literal = null,
+};
+
+const MINUSToken = Token{
+    .tokenType = .MINUS,
+    .lexeme = "-",
+    .literal = null,
+};
+
+const PLUSToken = Token{
+    .tokenType = .PLUS,
+    .lexeme = "+",
+    .literal = null,
+};
+
+const MULTIPLEToken = Token{
+    .tokenType = .MULTIPLE,
+    .lexeme = "*",
     .literal = null,
 };
 
@@ -95,6 +119,21 @@ fn match(token: u8) MyErrors!Token {
         },
         '}' => {
             return RBRACEToken;
+        },
+        ',' => {
+            return COMMAToken;
+        },
+        '.' => {
+            return DOTToken;
+        },
+        '-' => {
+            return MINUSToken;
+        },
+        '+' => {
+            return PLUSToken;
+        },
+        '*' => {
+            return MULTIPLEToken;
         },
         0 => {
             return EOFToken;
