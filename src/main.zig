@@ -2,7 +2,7 @@ const std = @import("std");
 
 const print = std.debug.print;
 const MyErrors = error{TokenNotFound};
-const TokenType = enum { LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, COMMA, DOT, MINUS, PLUS, MULTIPLE, EOF };
+const TokenType = enum { LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, COMMA, DOT, MINUS, PLUS, MULTIPLE, QUESTION, EOF };
 
 const Token = struct {
     tokenType: TokenType,
@@ -35,6 +35,12 @@ const LBRACEToken = Token{
 const RBRACEToken = Token{
     .tokenType = .RIGHT_BRACE,
     .lexeme = "}",
+    .literal = null,
+};
+
+const QUESTIONToken = Token{
+    .tokenType = .QUESTION,
+    .lexeme = ";",
     .literal = null,
 };
 
@@ -134,6 +140,9 @@ fn match(token: u8) MyErrors!Token {
         },
         '*' => {
             return MULTIPLEToken;
+        },
+        ';' => {
+            return QUESTIONToken;
         },
         0 => {
             return EOFToken;
