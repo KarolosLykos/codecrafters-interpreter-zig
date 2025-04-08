@@ -107,7 +107,6 @@ pub fn main() !void {
     }
     try std.io.getStdOut().writer().print("EOF  null\n", .{}); // Placeholder, remove this line when implementing the scanner
 
-    std.debug.print("exit_code: {}\n", .{exit_code});
     std.process.exit(exit_code);
 }
 
