@@ -97,7 +97,7 @@ pub fn main() !void {
     var exit_code: u8 = 0;
     // Uncomment this block to pass the first stage
     if (file_contents.len > 0) {
-        for (file_contents, 0..) |token, line| {
+        for (file_contents, 1..) |token, line| {
             scanner(token) catch {
                 try std.io.getStdOut().writer().print("[line {}] Error: Unexpected character: {c}\n", .{ line, token });
 
