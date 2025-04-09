@@ -2,7 +2,7 @@ const std = @import("std");
 
 const print = std.debug.print;
 const MyErrors = error{TokenNotFound};
-const TokenType = enum { LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, COMMA, DOT, MINUS, PLUS, STAR, SEMICOLON, EOF };
+const TokenType = enum { LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, COMMA, DOT, MINUS, PLUS, STAR, SEMICOLON, EQUAL, EQUAL_EQUAL, EOF };
 
 const Token = struct {
     tokenType: TokenType,
@@ -74,6 +74,18 @@ const STARToken = Token{
     .literal = null,
 };
 
+const EQUALToken = Token{
+    .tokenType = .EQUAL,
+    .lexeme = "=",
+    .literal = null,
+};
+
+const EQUALEQUALToken = Token{
+    .tokenType = .EQUAL_EQUAL,
+    .lexeme = "==",
+    .literal = null,
+};
+
 pub fn main() !void {
     const args = try std.process.argsAlloc(std.heap.page_allocator);
     defer std.process.argsFree(std.heap.page_allocator, args);
@@ -96,18 +108,40 @@ pub fn main() !void {
 
     var exit_code: u8 = 0;
     var line: u8 = 1;
+    var next: bool = false;
     // Uncomment this block to pass the first stage
     if (file_contents.len > 0) {
-        for (file_contents) |token| {
+        for (file_contents, 0..) |token, i| {
+            if (next) {
+                next = false;
+                continue;
+            }
             if (token == '\n') {
                 line += 1;
                 continue;
             }
-            scanner(token) catch {
+            var t = scanner(token) catch {
                 try std.io.getStdErr().writer().print("[line {d}] Error: Unexpected character: {c}\n", .{ line, token });
 
                 exit_code = 65;
+                continue;
             };
+
+            if (t.tokenType == EQUALToken.tokenType and file_contents.len > i + 1) {
+                const nextToken = scanner(file_contents[i + 1]) catch {
+                    try std.io.getStdOut().writer().print("{s} {s} {any}\n", .{ @tagName(t.tokenType), t.lexeme, t.literal });
+                    continue;
+                };
+
+                if (nextToken.tokenType == EQUALToken.tokenType) {
+                    t.tokenType = EQUALEQUALToken.tokenType;
+                    t.lexeme = EQUALEQUALToken.lexeme;
+                    t.literal = EQUALEQUALToken.literal;
+                    next = true;
+                }
+            }
+
+            try std.io.getStdOut().writer().print("{s} {s} {any}\n", .{ @tagName(t.tokenType), t.lexeme, t.literal });
         }
     }
     try std.io.getStdOut().writer().print("EOF  null\n", .{});
@@ -115,12 +149,12 @@ pub fn main() !void {
     std.process.exit(exit_code);
 }
 
-fn scanner(token: u8) !void {
+fn scanner(token: u8) MyErrors!Token {
     const t = match(token) catch {
         return MyErrors.TokenNotFound;
     };
 
-    try std.io.getStdOut().writer().print("{s} {s} {any}\n", .{ @tagName(t.tokenType), t.lexeme, t.literal });
+    return t;
 }
 
 fn match(token: u8) MyErrors!Token {
@@ -154,6 +188,9 @@ fn match(token: u8) MyErrors!Token {
         },
         ';' => {
             return SEMICOLONToken;
+        },
+        '=' => {
+            return EQUALToken;
         },
         0 => {
             return EOFToken;
